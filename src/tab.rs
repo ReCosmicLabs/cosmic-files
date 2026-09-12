@@ -2895,7 +2895,7 @@ fn folder_name<P: AsRef<Path>>(path: P) -> (String, bool) {
         Some(name) => {
             if path == crate::home_dir() {
                 found_home = true;
-                fl!("home")
+                crate::home_label()
             } else {
                 match (get_filename_from_path(path), fs::metadata(path)) {
                     (Ok(name), Ok(metadata)) => {

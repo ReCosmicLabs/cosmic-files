@@ -110,7 +110,7 @@ impl Favorite {
     /// Name shown in the sidebar, or `None` if the path has no usable file name
     pub fn display_name(&self) -> Option<String> {
         match self {
-            Self::Home => Some(crate::fl!("home")),
+            Self::Home => Some(crate::home_label()),
             Self::Named { name, .. } | Self::Network { name, .. } => Some(name.clone()),
             _ => self
                 .path_opt()?

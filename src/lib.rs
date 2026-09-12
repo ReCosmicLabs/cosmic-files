@@ -55,6 +55,16 @@ pub fn desktop_dir() -> PathBuf {
     }
 }
 
+/// Rotulo da pasta pessoal na barra lateral: o nome da pasta ("Alexandre"), nao um generico
+/// "Pasta pessoal". Cai no texto traduzido so se a home nao tiver nome.
+pub fn home_label() -> String {
+    home_dir()
+        .file_name()
+        .and_then(|n| n.to_str())
+        .map(str::to_owned)
+        .unwrap_or_else(|| fl!("home"))
+}
+
 pub fn home_dir() -> PathBuf {
     if let Some(home) = dirs::home_dir() {
         home

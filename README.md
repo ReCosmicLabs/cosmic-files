@@ -11,6 +11,8 @@ Maintained by [ReCosmicLabs](https://github.com/ReCosmicLabs) for the
 original work, as required by section 5 of the GPL. The `recosmic` branch holds these patches rebased on
 top of upstream; `master` is an untouched mirror.
 
+- **Home entry named after the user** (`src/lib.rs`). The sidebar and the breadcrumb show the home
+  folder by its real name (the user name) instead of the generic "Home" / "Pasta pessoal".
 - **Resizable sidebar** (`src/app.rs`, `src/config.rs`). The navigation bar has a 6 px drag handle on its
   right edge; dragging it changes the width (160 to 640 px) and the value is saved as `nav_bar_width` in
   the app config, so it survives restarts. Upstream fixes it at 280 px.
