@@ -208,6 +208,8 @@ pub struct Config {
     pub show_recents: bool,
     pub tab: TabConfig,
     pub type_to_search: TypeToSearch,
+    /// Largura do menu lateral, em pixels; arrastavel pela borda direita dele.
+    pub nav_bar_width: u16,
 }
 
 impl Config {
@@ -272,6 +274,7 @@ impl Default for Config {
             show_recents: true,
             tab: TabConfig::default(),
             type_to_search: TypeToSearch::Recursive,
+            nav_bar_width: 280,
         }
     }
 }

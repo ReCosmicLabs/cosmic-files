@@ -335,6 +335,8 @@ impl MenuAction for NavMenuAction {
 /// Messages that are used specifically by our [`App`].
 #[derive(Clone, Debug)]
 pub enum Message {
+    NavResize(bool),
+    NavResizeTo(f32),
     AddToSidebar(Option<Entity>),
     AppTheme(AppTheme),
     CloseToast(widget::ToastId),
@@ -770,6 +772,8 @@ pub struct App {
     type_select_prefix: String,
     type_select_last_key: Option<Instant>,
     nav_drag_id: DragId,
+    /// Some enquanto o menu lateral esta sendo redimensionado pela alca.
+    nav_resizing: bool,
     tab_drag_id: DragId,
     auto_scroll_speed: Option<i16>,
     file_dialog_opt: Option<Dialog<Message>>,
@@ -2476,6 +2480,7 @@ impl Application for App {
             type_select_prefix: String::new(),
             type_select_last_key: None,
             nav_drag_id: DragId::new(),
+            nav_resizing: false,
             tab_drag_id: DragId::new(),
             auto_scroll_speed: None,
             file_dialog_opt: None,
@@ -2554,14 +2559,28 @@ impl Application for App {
                 .on_surface_action(|m| cosmic::Action::Cosmic(cosmic::app::Action::Surface(m)))
         }
 
-        let mut nav = nav.into_container();
+        let nav = nav.into_container();
 
-        if !self.core.is_condensed() {
-            nav = nav.max_width(280);
+        if self.core.is_condensed() {
+            return Some(Element::from(nav.width(Length::Shrink).height(Length::Fill)));
         }
 
+        // Largura vem da config e a borda direita e uma alca de arrastar.
+        let largura = f32::from(self.config.nav_bar_width);
+        let alca = widget::mouse_area(
+            widget::container(space::vertical().height(Length::Fill))
+                .width(Length::Fixed(6.0))
+                .height(Length::Fill),
+        )
+        .interaction(mouse::Interaction::ResizingHorizontally)
+        .on_press(cosmic::Action::App(Message::NavResize(true)));
+
         Some(Element::from(
-            nav.width(Length::Shrink).height(Length::Fill),
+            widget::row::with_capacity(2)
+                .push(nav.width(Length::Fixed(largura - 6.0)).height(Length::Fill))
+                .push(alca)
+                .width(Length::Fixed(largura))
+                .height(Length::Fill),
         ))
     }
 
@@ -2933,6 +2952,20 @@ impl Application for App {
                 }
                 config_set!(favorites, favorites);
                 return self.update_config();
+            }
+            Message::NavResize(ativo) => {
+                if self.nav_resizing && !ativo {
+                    // Soltou a alca: grava a largura final.
+                    let largura = self.config.nav_bar_width;
+                    config_set!(nav_bar_width, largura);
+                }
+                self.nav_resizing = ativo;
+            }
+            Message::NavResizeTo(x) => {
+                if self.nav_resizing {
+                    // A alca tem 6 px e o menu comeca na borda esquerda da janela.
+                    self.config.nav_bar_width = (x - 3.0).round().clamp(160.0, 640.0) as u16;
+                }
             }
             Message::AppTheme(app_theme) => {
                 config_set!(app_theme, app_theme);
@@ -6785,6 +6818,12 @@ impl Application for App {
         let mut subscriptions = vec![
             //TODO: filter more events by window id
             event::listen_with(|event, status, window_id| match event {
+                Event::Mouse(mouse::Event::CursorMoved { position }) => {
+                    Some(Message::NavResizeTo(position.x))
+                }
+                Event::Mouse(mouse::Event::ButtonReleased(mouse::Button::Left)) => {
+                    Some(Message::NavResize(false))
+                }
                 Event::Mouse(mouse::Event::ButtonPressed(button)) => match status {
                     event::Status::Ignored => Some(Message::Mouse(window_id, button)),
                     event::Status::Captured => None,

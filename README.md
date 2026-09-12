@@ -1,3 +1,24 @@
+# cosmic-files (fork ReCosmicLabs)
+
+> **This is a fork of [pop-os/cosmic-files](https://github.com/pop-os/cosmic-files)**, the file manager of
+> the COSMIC desktop by [System76](https://system76.com). All credit for the app itself goes to System76
+> and the upstream contributors. The license is unchanged: **GPL-3.0-only**.
+
+## Changes in this fork
+
+Maintained by [ReCosmicLabs](https://github.com/ReCosmicLabs) for the
+[dotfiles](https://github.com/eualexandrerrr/dotfiles) setup. Everything below is a modification of the
+original work, as required by section 5 of the GPL. The `recosmic` branch holds these patches rebased on
+top of upstream; `master` is an untouched mirror.
+
+- **Resizable sidebar** (`src/app.rs`, `src/config.rs`). The navigation bar has a 6 px drag handle on its
+  right edge; dragging it changes the width (160 to 640 px) and the value is saved as `nav_bar_width` in
+  the app config, so it survives restarts. Upstream fixes it at 280 px.
+
+---
+
+Original README follows.
+
 # cosmic-files
 File manager for the COSMIC desktop environment
 
